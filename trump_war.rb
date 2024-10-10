@@ -23,7 +23,7 @@ class Deck < Card #デッキを管理する
     @cards.shuffle!
   end
 
-  def deal
+  def deal 
     puts "戦争を開始します．\nカードが配られました．"
     while !@cards.empty?
       Player.menber.each do |player|
@@ -57,7 +57,7 @@ end
 
 class Game #ゲームの進行を管理する
   def duel
-    @@draw_frag = 0 #1になったときに終わる
+    @@draw_frag = 0 #2以上になったときは引き分けの処理
     while @@draw_frag != 1
       @@draw_frag = 0
       @@field = {}
@@ -65,8 +65,11 @@ class Game #ゲームの進行を管理する
       Player.menber.each do |player|
         @@field[player] = player.hand.pop
       end
+
+      @@winner = @@field.max_by{ |k,v| v.rank }
+
       @@field.each do |player, card|
-        if @@field.max_by{ |k,v| v.rank }[1].rank == card.rank
+        if @@winner[1].rank == card.rank
           @@draw_frag += 1
         end
         print "#{player.name}のカードは「#{card.suit}#{card.rank}」\n"
@@ -74,7 +77,7 @@ class Game #ゲームの進行を管理する
       if @@draw_frag > 1 
         puts "引き分けです．"
       else
-        puts "#{@@field.max_by{ |k,v| v.rank }[0].name}の勝利" 
+        puts "#{@@winner[0].name}の勝利．\n戦争を終了します．" 
       end
     end
   end
