@@ -26,41 +26,44 @@ class Deck < Card #デッキを管理する
   def deal
     puts "戦争を開始します．\nカードが配られました．"
     while !@cards.empty?
-      Player.menber.each do |player|
-        Hand.add_hand(player, @cards.pop)
+      Player.member.each do |player|
+        Hand.start(player, @cards.pop)
       end
     end
   end
 end
 
 class Field  #場のカードを管理する
+  attr_reader :deposit
   def initialize
-    @field_cards = {}
+    @deposit = {}
   end
 
-  def deposit(card)
+  def save(player)
     #ターンの始めにカードが場に出される
+    @deposit[player] = Hand.play(player)
   end
 
-  def self.push(card,player)
-    Hand.push_hand(player)
+  def give(player)
+    @deposit.each do |card|
+      Hand.take(player,card)
+    end
   end
-  
   
 end
 
 class Player #プレーヤーを管理する
   attr_reader :name
-  @@menber = []
+  @@member = []
 
   def initialize(name)
     @name = name
-    @@menber << self
+    @@member << self
     Hand.new(self)
   end
 
-  def self.menber
-    @@menber
+  def self.member
+    @@member
   end
 end
 
@@ -71,73 +74,72 @@ class Hand  #手札を管理する
     @@hand[player] = []
   end
 
-  def self.add_hand(player, card)
+  def self.start(player, card)
     @@hand[player] << card
   end
 
-  def self.shift_hand(player)
+  def self.play(player)
     @@hand[player].shift
   end
 
-  def self.push_hand(player)
-    @@hand[player].push
+  def self.take(player,card)
+    @@hand[player].push(card)
   end
   
-  def self.menber_hand(menber)
+  def self.member_hand(member)
     @@number_of_cards = {}
-    menber.each do |player|
+    member.each do |player|
       @@number_of_cards[player] = @@hand[player].length
     end
     return @@number_of_cards
   end
 
-  def self.minimum_hand(menber)
-    self.menber_hand(menber)
-    return @@number_of_cards.min_by{|k, v| v}[1]
+  def self.minimum_hand(member)
+    return self.member_hand(member).min_by{|k, v| v}[1]
   end
 
 end
 
 class Game #ゲームの進行を管理する
   def turn #1ターンの流れ
-    @@draw_frag = 0 #2以上になったときは引き分けの処理
-    while @@draw_frag != 1
-      @@draw_frag = 0
-      @@field = {}
+    field = Field.new
+    @draw_frag = 0 #2以上になったときは引き分けの処理
+    while @draw_frag != 1
+      @draw_frag = 0
       puts '戦争！'
-      Player.menber.each do |player|
-        @@field[player] = Hand.shift_hand(player)
+      Player.member.each do |player|
+        field.save(player)
       end
 
-      @@winner = @@field.max_by{|k, v| v.rank }
+      @winner = field.deposit.max_by{|k, v| v.power }
 
-      @@field.each do |player, card|
-        if @@winner[1].rank == card.rank
-          @@draw_frag += 1
+      field.deposit.each do |player, card|
+        if @winner[1].rank == card.rank
+          @draw_frag += 1
         end
         print "#{player.name}のカードは「#{card.suit}#{card.rank}」\n"
       end
-      if @@draw_frag > 1
+      if @draw_frag > 1
         puts "引き分けです．"
       else
-        puts "#{@@winner[0].name}の勝利．#{@@winner[0].name}はカードを貰いました．"
+        puts "#{@winner[0].name}の勝利．#{@winner[0].name}はカードを貰いました．"
+        field.give(@winner[0])
       end
     end
   end
 
   def duel #勝敗が決定するまでの一連の流れ
-    while Hand.minimum_hand(Player.menber) > 0
+    while Hand.minimum_hand(Player.member) > 0
       self.turn
+      puts Hand.member_hand(Player.member)
     end
-    puts Hand.menber_hand(Player.menber)
   end
 
 end
 
 deck = Deck.new
-field = Field.new
 player1 = Player.new('player1')
 player2 = Player.new('player2')
 deck.deal
 game = Game.new
-game.duel
+#game.duel
