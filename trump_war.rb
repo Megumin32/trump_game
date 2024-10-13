@@ -34,22 +34,27 @@ class Deck < Card #デッキを管理する
 end
 
 class Field  #場のカードを管理する
-  attr_reader :deposit
-  def initialize
-    @deposit = {}
+  @@deposit = []
+  @@field = {}
+  def initialize(player)
+    @@field[player] = ""
   end
 
-  def save(player)
-    #ターンの始めにカードが場に出される
-    @deposit[player] = Hand.play(player)
+  def self.save(player)
+    @@field[player] = Hand.play(player)
   end
 
-  def give(player)
-    @deposit.each do |card|
+  def self.give(player)
+    @@deposit.each do |k, card|
       Hand.take(player,card)
     end
   end
   
+  def self.deposit
+    @@field.each do |player, card|
+      @@deposit.push(card)
+    dnd
+  end
 end
 
 class Player #プレーヤーを管理する
@@ -60,6 +65,7 @@ class Player #プレーヤーを管理する
     @name = name
     @@member << self
     Hand.new(self)
+    Field.new(self)
   end
 
   def self.member
@@ -88,7 +94,7 @@ class Hand  #手札を管理する
   
   def self.member_hand(member)
     @@number_of_cards = {}
-    member.each do |player|
+    Player.member.each do |player|
       @@number_of_cards[player] = @@hand[player].length
     end
     return @@number_of_cards
@@ -102,18 +108,17 @@ end
 
 class Game #ゲームの進行を管理する
   def turn #1ターンの流れ
-    field = Field.new
     @draw_frag = 0 #2以上になったときは引き分けの処理
     while @draw_frag != 1
       @draw_frag = 0
       puts '戦争！'
       Player.member.each do |player|
-        field.save(player)
+        Field.save(player)
       end
 
-      @winner = field.deposit.max_by{|k, v| v.power }
+      @winner = field.max_by{|k, v| v.power }
 
-      field.deposit.each do |player, card|
+      Field.deposit.each do |player, card|
         if @winner[1].rank == card.rank
           @draw_frag += 1
         end
@@ -142,4 +147,4 @@ player1 = Player.new('player1')
 player2 = Player.new('player2')
 deck.deal
 game = Game.new
-#game.duel
+game.turn
