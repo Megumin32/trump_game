@@ -1,150 +1,134 @@
-class Card #カードを管理する
+class Card # カードを管理する
+  @@deck = []
   SUITS = ['♠', '♣', '◆', '♥']
-  RANK = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+  RANK = %w[2 3 4 5 6 7 8 9 10 J Q K A]
   POWER = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
-  attr_reader :suit, :rank, :power
-  
   def initialize(suit, rank, power)
     @suit = suit
     @rank = rank
     @power = power
+    @@deck << self
+  end
+
+  def self.deck
+    @@deck
+  end
+
+  def self.deck_shuffle
+    @@deck.shuffle!
+  end
+
+  def self.debug
+    puts @@deck
   end
 end
 
-class Deck < Card #デッキを管理する
-  def initialize
-    @cards = []
-    SUITS.each do |suit|
-      RANK.each do |rank|
-        @cards << Card.new(suit, rank, POWER[RANK.index(rank)])
-      end
-    end
-    @cards.shuffle!
-  end
-
-  def deal
-    puts "戦争を開始します．\nカードが配られました．"
-    while !@cards.empty?
-      Player.member.each do |player|
-        Hand.start(player, @cards.pop)
-      end
-    end
-  end
-end
-
-class Field  #場のカードを管理する
-  @@deposit = []
-  @@field = {}
-  def initialize(player)
-    @@field[player] = ""
-  end
-
-  def self.save(player)
-    @@field[player] = Hand.play(player)
-  end
-
-  def self.give(player)
-    @@deposit.each do |k, card|
-      Hand.take(player,card)
-    end
-  end
-  
-  def self.deposit
-    @@field.each do |player, card|
-      @@deposit.push(card)
-    dnd
-  end
-end
-
-class Player #プレーヤーを管理する
-  attr_reader :name
+class Player # プレーヤーを管理する
   @@member = []
-
   def initialize(name)
     @name = name
     @@member << self
-    Hand.new(self)
-    Field.new(self)
   end
 
   def self.member
     @@member
   end
+
+  def self.debug
+    puts @@member
+  end
 end
 
-class Hand  #手札を管理する
-  @@hand = {}
+class Hand < Card # 手札を管理する
+  attr_accessor :cards
+
+  @@all_hand = []
   def initialize(player)
     @player = player
-    @@hand[player] = []
+    @cards = []
+    @@all_hand << self
   end
 
-  def self.start(player, card)
-    @@hand[player] << card
-  end
-
-  def self.play(player)
-    @@hand[player].shift
-  end
-
-  def self.take(player,card)
-    @@hand[player].push(card)
-  end
-  
-  def self.member_hand(member)
-    @@number_of_cards = {}
-    Player.member.each do |player|
-      @@number_of_cards[player] = @@hand[player].length
+  def self.deal
+    until Card.deck.empty?
+      @@all_hand.each do |hand|
+        hand.cards << Card.deck.pop unless Card.deck.empty?
+      end
     end
-    return @@number_of_cards
   end
 
-  def self.minimum_hand(member)
-    return self.member_hand(member).min_by{|k, v| v}[1]
+  def self.debug
+    print @@all_hand
   end
-
 end
 
-class Game #ゲームの進行を管理する
-  def turn #1ターンの流れ
-    @draw_frag = 0 #2以上になったときは引き分けの処理
-    while @draw_frag != 1
-      @draw_frag = 0
-      puts '戦争！'
-      Player.member.each do |player|
-        Field.save(player)
-      end
+class Field < Card # 場を管理する
+  attr_accessor :cards
 
-      @winner = field.max_by{|k, v| v.power }
-
-      Field.deposit.each do |player, card|
-        if @winner[1].rank == card.rank
-          @draw_frag += 1
-        end
-        print "#{player.name}のカードは「#{card.suit}#{card.rank}」\n"
-      end
-      if @draw_frag > 1
-        puts "引き分けです．"
-      else
-        puts "#{@winner[0].name}の勝利．#{@winner[0].name}はカードを貰いました．"
-        field.give(@winner[0])
-      end
-    end
+  @@all_field = []
+  def initialize(player)
+    @player = player
+    @cards = []
+    @@all_field << self
   end
 
-  def duel #勝敗が決定するまでの一連の流れ
-    while Hand.minimum_hand(Player.member) > 0
-      self.turn
-      puts Hand.member_hand(Player.member)
-    end
+  def self.debug
+    print @@all_field
   end
-
 end
 
-deck = Deck.new
-player1 = Player.new('player1')
-player2 = Player.new('player2')
-deck.deal
-game = Game.new
-game.turn
+class Deposit < Card # 預かりカードを管理する
+  attr_accessor :cards
+
+  @@all_deposit = []
+  def initialize(player)
+    @player = player
+    @cards = []
+    @@all_deposit << self
+  end
+
+  def self.debug
+    print @@all_deposit
+  end
+end
+
+class Geme # ゲーム進行を管理する
+  # 手札から１枚場に出す
+  # 場のカードを比較する
+  # 勝利者のデポジットに場のカードを追加する
+  # カードが0になったら，デポジットをシャッフルして手札に加える
+  # デポジットも0であれば，ゲームが終了する
+end
+
+Card::SUITS.each do |suit|
+  Card::RANK.each do |rank|
+    Card.new(suit, rank, Card::POWER[Card::RANK.index(rank)])
+  end
+end
+Card.deck_shuffle
+
+# print '何人で対戦しますか: '
+# num = gets.chomp.to_i
+# for n in 1..num do
+# print "プレーヤー#{n}の名前を入力してください: "
+# create(gets.chomp)
+# end
+
+# とりあえず３人
+Player.new('foo') # for debug
+Player.new('bar') # for debug
+Player.new('baz') # for debug
+
+Player.member.each do |player|
+  Hand.new(player)
+  Field.new(player)
+  Deposit.new(player)
+end
+Hand.deal
+
+# Card.debug
+# Player.debug
+# Hand.debug
+# Field.debug
+# Deposit.debug
