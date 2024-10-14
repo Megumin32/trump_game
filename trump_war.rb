@@ -122,16 +122,10 @@ Player.new('baz') # for debug
 
 Player.member.each do |player|
   Hand.new(player)
-end
-Hand.deal
-
-Player.member.each do |player|
   Field.new(player)
-end
-
-Player.member.each do |player|
   Deposit.new(player)
 end
+Hand.deal
 
 # Card.debug
 # Player.debug
