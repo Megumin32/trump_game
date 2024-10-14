@@ -220,13 +220,27 @@ Card::SUITS.each do |suit|
     Card.new(suit, rank, Card::POWER[Card::RANK.index(rank)])
   end
 end
+Card.new('Joker', '', 14)
 Card.deck_shuffle
 
-# print '何人で対戦しますか: '
-# num = gets.chomp.to_i
-# for n in 1..num do
-# print "プレーヤー#{n}の名前を入力してください: "
-# create(gets.chomp)
+# 例外処理が上手くいかないため，要修正
+# begin
+#   print '何人で対戦しますか（2〜5）: '
+#   input = gets.to_i
+#   raise TypeError, '整数値で入力してください' unless input.is_a?(Integer)
+# rescue TypeError => e
+#   puts "エラー： #{e.message}"
+#   retry
+# end
+# for i in 1..input do
+#   begin
+#     print "プレーヤー#{i}の名前を入力してください: "
+#     input = gets
+#     input.to_str
+#     Player.new(input)
+#   rescue NoMethodError
+#     puts '入力値を文字列に変換できません．'
+#   end
 # end
 
 # for debug ##############################
@@ -235,7 +249,7 @@ Player.new('Bertrand')
 Player.new('Catherine')
 Player.new('Diana')
 Player.new('Elizabeth')
-##########################################
+#########################################
 
 Player.member.each do |player|
   Hand.new(player)
