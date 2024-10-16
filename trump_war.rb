@@ -244,11 +244,11 @@ Card.deck_shuffle
 # end
 
 # for debug ##############################
-Player.new('Alfred')
-Player.new('Bertrand')
-Player.new('Catherine')
-Player.new('Diana')
-Player.new('Elizabeth')
+Player.new('Agnes')
+Player.new('Becky')
+Player.new('Carol')
+Player.new('Daisy')
+Player.new('Emily')
 #########################################
 
 Player.member.each do |player|
@@ -269,3 +269,11 @@ while Hand.continue
 end
 
 Game.result
+
+######################## 要修正ポイント
+# 例外処理
+# スペードのエース
+# 同着の場合の処理
+
+#### 余裕があれば
+# リファクタリング
