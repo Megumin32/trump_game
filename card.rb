@@ -1,7 +1,7 @@
 class Card
-  SUITS = ['♠', '♣', '◆', '♥']
+  SUITS = %w[スペード クラブ ダイヤ ハート]
   RANKS = %w[A 2 3 4 5 6 7 8 9 10 J Q K]
-  STRENGTH = [13, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+  STRENGTHS = [13, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
   attr_reader :suit, :rank, :strength
 
   @@deck = []
@@ -27,7 +27,7 @@ class Card
   def self.generate_cards
     SUITS.each do |suit|
       RANKS.each do |rank|
-        @@deck << Card.new(suit, rank, STRENGTH[RANKS.index(rank)])
+        @@deck << Card.new(suit, rank, STRENGTHS[RANKS.index(rank)])
       end
     end
     @@deck << Card.new('Joker', '', 15)
