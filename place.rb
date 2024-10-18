@@ -16,7 +16,7 @@ class Place
   def self.hand_to_field
     Place.all_place.each do |place|
       place.bundle_of_card[:field] << place.bundle_of_card[:hand].pop
-      print " #{place.player.name} => #{place.bundle_of_card[:field][-1].suit}の#{place.bundle_of_card[:field][-1].rank}\n"
+      print " #{place.player.name} => #{place.bundle_of_card[:field][-1].suit}#{place.bundle_of_card[:field][-1].rank}\n"
     end
     # print Place.all_place # for debug
   end
@@ -50,11 +50,12 @@ class Place
     end
   end
 
-  def self.count_the_number_of_cards
+  def self.count_the_number_of_hands
     num_of_cards_list = []
     Place.all_place.each do |place|
-      num_of_cards_list << place.bundle_of_card[:hand].length + place.bundle_of_card[:deposit].length
+      num_of_cards_list << place.bundle_of_card[:hand].length
     end
+    # print "#{num_of_cards_list}\n" # for debug
     num_of_cards_list
   end
 end
