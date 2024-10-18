@@ -12,9 +12,15 @@ class Game
   end
 
   def self.determine_players
-    puts 'プレーヤーの人数を入力してください．（２〜５）'
-    num = gets.to_i
-    # 例外処理を記述
+    begin
+      puts 'プレーヤーの人数を入力してください．（2〜5）'
+      num = gets.to_i
+      num = 0 if num < 2 || num > 5
+      1 / num
+    rescue ZeroDivisionError
+      puts 'エラー： 有効な数値ではありません．2〜5を入力してください．'
+      retry
+    end
 
     num.times do |i|
       puts "プレーヤー#{i + 1}の名前を入力してください．"
@@ -72,7 +78,6 @@ class Game
       strength_list << place.bundle_of_card[:field][-1].strength
     end
     # puts("それぞれの強さは#{strength_list},最強は#{strength_list.max}") #for debug
-
     if strength_list.count(strength_list.max) == 1
       winner_index = strength_list.index(strength_list.max)
       puts "#{Place.all_place[winner_index].player.name}の勝ち"
@@ -97,13 +102,17 @@ class Game
   end
 
   def self.display_ranking
-    ranking_count = 1
-    points = Place.count_the_number_of_cards
-    points.length.times do
+    duplication_count = 0
+    points = Place.count_the_number_of_hands
+    for i in 1..points.length do
       max_index = points.index(points.max)
-      print "#{ranking_count}位 => #{Player.group[max_index].name}\n"
+      print "#{i + duplication_count}位 => #{Player.group[max_index].name}, 手札は#{Place.all_place[max_index].bundle_of_card[:hand].length}枚\n"
+      if points.count(points[max_index]) == 1
+        duplication_count = 0
+      else
+        duplication_count -= 1
+      end
       points[max_index] = -1
-      ranking_count += 1 if points.count(max_index) == 0
     end
   end
 end
