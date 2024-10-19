@@ -14,10 +14,23 @@ class Place
   end
 
   def self.hand_to_field
+    pair_of_spades = 0
     Place.all_place.each do |place|
-      place.bundle_of_card[:field] << place.bundle_of_card[:hand].pop
-      print " #{place.player.name} => #{place.bundle_of_card[:field][-1].suit}#{place.bundle_of_card[:field][-1].rank}\n"
+      fi = place.bundle_of_card[:field]
+      ha = place.bundle_of_card[:hand]
+      fi << ha.pop
+      print " #{place.player.name} => #{fi[-1].suit}#{fi[-1].rank}\n"
+      ############### スペードのエース判定
+      if fi[-1].strength == 13
+        pair_of_spades += 1
+      elsif fi[-1].strength == 14
+        pair_of_spades += 10
+      end
+      #################################
     end
+    puts '♠Aは世界一！' if pair_of_spades > 10
+    pair_of_spades = 0
+
     # print Place.all_place # for debug
   end
 
@@ -26,13 +39,14 @@ class Place
 
     count = 0
     Place.all_place.each do |place|
-      until place.bundle_of_card[:field].empty?
-        Place.all_place[winner_index].bundle_of_card[:deposit] << place.bundle_of_card[:field].pop
+      fi = place.bundle_of_card[:field]
+      until fi.empty?
+        Place.all_place[winner_index].bundle_of_card[:deposit] << fi.pop
         count += 1
       end
     end
     puts "#{Place.all_place[winner_index].player.name}はカードを#{count}枚もらいました．"
-    # ################################################### for debug
+    # ######################################## for debug
     # temp = []
     # Place.all_place.each do |place|
     #   temp << place.bundle_of_card[:deposit].length
@@ -43,10 +57,12 @@ class Place
 
   def self.deposit_to_hand
     Place.all_place.each do |place|
-      next unless place.bundle_of_card[:hand].empty?
+      ha = place.bundle_of_card[:hand]
+      de = place.bundle_of_card[:deposit]
+      next unless ha.empty?
 
-      place.bundle_of_card[:hand].shuffle!
-      place.bundle_of_card[:hand] << place.bundle_of_card[:deposit].pop until place.bundle_of_card[:deposit].empty?
+      de.shuffle!
+      ha << de.pop until de.empty?
     end
   end
 

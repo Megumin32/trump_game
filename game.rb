@@ -35,11 +35,11 @@ class Game
   end
 
   def self.determine_players_debug_mode # for debug
-    Player.Generate_players('aida')
-    Player.Generate_players('ishi')
-    Player.Generate_players('ueda')
-    Player.Generate_players('endo')
-    Player.Generate_players('ohno')
+    Player.Generate_players('プレーヤー1')
+    Player.Generate_players('プレーヤー2')
+    Player.Generate_players('プレーヤー3')
+    Player.Generate_players('プレーヤー4')
+    Player.Generate_players('プレーヤー5')
     Player.group.each do |player|
       Place.new(player)
     end
