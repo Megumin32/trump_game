@@ -5,7 +5,7 @@ class Place
   @@all_place = []
   def initialize(player)
     @player = player
-    @bundle_of_card = { field: [], hand: [], deposit: [] }
+    @bundle_of_card = { field: [], hand: [], stock: [] }
     @@all_place << self
   end
 
@@ -19,7 +19,7 @@ class Place
       fi = place.bundle_of_card[:field]
       ha = place.bundle_of_card[:hand]
       fi << ha.pop
-      print " #{place.player.name} => #{fi[-1].suit}#{fi[-1].rank}\n"
+      print " #{place.player.name} => #{fi[-1].name}\n"
       ############### スペードのエース判定
       if fi[-1].strength == 13
         pair_of_spades += 1
@@ -30,39 +30,30 @@ class Place
     end
     puts '♠Aは世界一！' if pair_of_spades > 10
     pair_of_spades = 0
-
-    # print Place.all_place # for debug
   end
 
-  def self.field_to_deposit(winner_index)
+  def self.field_to_stock(winner_index)
     return if winner_index.nil?
 
     count = 0
     Place.all_place.each do |place|
       fi = place.bundle_of_card[:field]
       until fi.empty?
-        Place.all_place[winner_index].bundle_of_card[:deposit] << fi.pop
+        Place.all_place[winner_index].bundle_of_card[:stock] << fi.pop
         count += 1
       end
     end
     puts "#{Place.all_place[winner_index].player.name}はカードを#{count}枚もらいました．"
-    # ######################################## for debug
-    # temp = []
-    # Place.all_place.each do |place|
-    #   temp << place.bundle_of_card[:deposit].length
-    # end
-    # puts "デポジットは#{temp}"
-    # ##################################################
   end
 
-  def self.deposit_to_hand
+  def self.stock_to_hand
     Place.all_place.each do |place|
       ha = place.bundle_of_card[:hand]
-      de = place.bundle_of_card[:deposit]
+      st = place.bundle_of_card[:stock]
       next unless ha.empty?
 
-      de.shuffle!
-      ha << de.pop until de.empty?
+      st.shuffle!
+      ha << st.pop until st.empty?
     end
   end
 
@@ -71,7 +62,6 @@ class Place
     Place.all_place.each do |place|
       num_of_cards_list << place.bundle_of_card[:hand].length
     end
-    # print "#{num_of_cards_list}\n" # for debug
     num_of_cards_list
   end
 end

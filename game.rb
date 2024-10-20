@@ -8,7 +8,6 @@ class Game
   def self.prepare_a_deck
     Card.generate_cards
     Card.make_a_deck
-    # print Card.deck # for debug
   end
 
   def self.determine_players
@@ -30,8 +29,6 @@ class Game
     Player.group.each do |player|
       Place.new(player)
     end
-    # print Player.group # for debug
-    # print Place.all_place # for debug
   end
 
   def self.determine_players_debug_mode # for debug
@@ -52,24 +49,15 @@ class Game
         place.bundle_of_card[:hand].compact!
       end
     end
-    # print Place.all_place # for debug
   end
 
   def self.do_a_turn
     puts '戦争！'
     Place.hand_to_field
     winner = determine_the_winner
-    Place.field_to_deposit(winner)
-    Place.deposit_to_hand
-    game_over?
-
-    # ########################################### for debug
-    # temp = []
-    # Place.all_place.each do |place|
-    #   temp << place.bundle_of_card[:hand].length
-    # end
-    # puts "残りの手札は#{temp}"
-    # ###########################################
+    Place.field_to_stock(winner)
+    Place.stock_to_hand
+    game_over_judge
   end
 
   def self.determine_the_winner
@@ -77,7 +65,6 @@ class Game
     Place.all_place.each do |place|
       strength_list << place.bundle_of_card[:field][-1].strength
     end
-    # puts("それぞれの強さは#{strength_list},最強は#{strength_list.max}") #for debug
     if strength_list.count(strength_list.max) == 1
       winner_index = strength_list.index(strength_list.max)
       puts "#{Place.all_place[winner_index].player.name}の勝ち"
@@ -92,7 +79,7 @@ class Game
     @@game_over
   end
 
-  def self.game_over?
+  def self.game_over_judge
     Place.all_place.each do |place|
       if place.bundle_of_card[:hand].empty?
         puts "#{place.player.name}の手札がなくなりました"
