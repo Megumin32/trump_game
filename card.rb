@@ -1,14 +1,19 @@
 class Card
-  SUITS = %w[♠ ♣ ◆ ♥]
+  SUITS = %w[スペード クラブ ダイヤ ハート]
   RANKS = %w[A 2 3 4 5 6 7 8 9 10 J Q K]
   STRENGTHS = [13, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-  attr_reader :suit, :rank, :strength
+  attr_reader :name, :strength
 
   @@deck = []
 
   def initialize(suit, rank, strength)
     @suit = suit
     @rank = rank
+    @name = if rank == ''
+              suit
+            else
+              "#{suit}の#{rank}"
+            end
     @strength = strength
   end
 
